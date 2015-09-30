@@ -15,36 +15,41 @@ class HomePageTest(TestCase):
 	def test_home_page_returns_correct_html(self):
 		request = HttpRequest()
 		response = home_page(request)
-		expected_html = render_to_string('home.html')#, {'itempribadi': 'yey, waktunya berlibur' })
+		expected_html = render_to_string('home.html', {'itempribadi': 'yey, waktunya berlibur' })
 		self.assertEqual(response.content.decode(), expected_html)
 		self.assertTrue(response.content.startswith(b'<html>'))
-		self.assertIn(b'<title>To-Do Lists</title>', response.content)
+		self.assertIn(b'<title>To-Do Lists</title>', response.content)	
 		self.assertTrue(response.content.strip().endswith(b'</html>'))
 	
-#	def test_fitur_nol(self):
-#		request = HttpRequest()
-#		response = home_page(request)
-#		self.assertEqual(Item.objects.count(), 0)
-#		self.assertIn('yey, waktunya berlibur', response.content.decode())
-#	def test_fitur_kurang_dari_lima(self):
-#		Item.objects.create(text= 'itemku1')
-#		Item.objects.create(text= 'itemku2')
+	def test_fitur_nol(self):
+		request = HttpRequest()
+		list_ = List.objects.create()
+		response = self.client.get('/lists/%d/' % (list_.id,))
+		self.assertEqual(Item.objects.count(), 0)
+		self.assertIn('yey, waktunya berlibur', response.content.decode())
+	def test_fitur_kurang_dari_lima(self):
+		list_1 = List.objects.create()		
+		Item.objects.create(text= 'itemku1', list=list_1)
+		Item.objects.create(text= 'itemku2', list=list_1)
 
-#		request = HttpRequest()
-#		response = home_page(request)
-#		self.assertLess(Item.objects.count(), 5)
-#		self.assertIn('sibuk tapi santai', response.content.decode())
+		request = HttpRequest()
+		response = self.client.get('/lists/%d/' % (list_1.id,))
+		self.assertLess(Item.objects.count(), 5)
+		self.assertIn('sibuk tapi santai', response.content.decode())
 	
-#	def test_fitur_lebih_atau_sama_dengan_lima(self):
-#		Item.objects.create(text= 'itemku1')
-#		Item.objects.create(text= 'itemku2')
-#		Item.objects.create(text= 'itemku3')
-#		Item.objects.create(text= 'itemku4')
-#		Item.objects.create(text= 'itemku5')
-#		request = HttpRequest()
-#		response = home_page(request)
-#		self.assertGreaterEqual(Item.objects.count(), 5)
-#		self.assertIn('oh tidak', response.content.decode())
+	def test_fitur_lebih_atau_sama_dengan_lima(self):
+		list_2 = List.objects.create()
+		Item.objects.create(text= 'itemku1', list= list_2)
+		Item.objects.create(text= 'itemku2', list= list_2)
+		Item.objects.create(text= 'itemku3', list= list_2)
+		Item.objects.create(text= 'itemku4', list= list_2)
+		Item.objects.create(text= 'itemku5', list= list_2)
+		
+		
+		request = HttpRequest()
+		response = self.client.get('/lists/%d/' % (list_2.id,))
+		self.assertGreaterEqual(Item.objects.count(), 5)
+		self.assertIn('oh tidak', response.content.decode())
 
 class ListAndItemModelTest(TestCase):
 	def test_saving_and_retrieving_items(self):
