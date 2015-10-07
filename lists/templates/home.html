@@ -6,7 +6,7 @@
 		{% block form_action %}/lists/new{% endblock %}
 		{% csrf_token %}
 		</form>
-		{{ itempribadi }}
+		{% block itemp %} {{ itempribadi }} {% endblock %}
 	</body>
 </html>
 
